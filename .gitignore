@@ -1,0 +1,27 @@
+# Compiled binary files
+*.exe
+*.out
+*.dll
+
+# Output of the go coverage tool
+*.cover
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+
+# Environment configuration
+.env
+
+# Log files
+*.log
+
+# macOS-specific
+.DS_Store
+
+# Windows-specific
+Thumbs.db
+
+# Go modules cache
+/go.mod
+/go.sum
