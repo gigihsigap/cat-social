@@ -1,46 +1,50 @@
 CREATE TABLE IF NOT EXISTS users (
-    user_id uuid default gen_random_uuid() not null constraint users_pk primary key,
-    name varchar(255) not null,
-    email varchar(255) not null,
-    password varchar(500) not null,
-    created_at timestamp default now(),
-    updated_at timestamp default now(),
-    deleted_at timestamp default null
+    id bigserial PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at timestamp DEFAULT NULL
 );
 
-CREATE UNIQUE INDEX unique_email_idx ON users (email)
-WHERE
-    (deleted_at IS NULL);
+CREATE TYPE race_enum AS ENUM ('Persian', 'Maine Coon', 'Siamese', 'Ragdoll', 'Bengal', 'Sphynx', 'British Shorthair', 'Abyssinian', 'Scottish Fold', 'Birman');
+CREATE TYPE sex_enum AS ENUM ('male', 'female');
 
-CREATE TABLE IF NOT EXISTS cats (
-    cat_id uuid default gen_random_uuid() not null constraint cats_pk primary key,
-    user_id uuid not null,
-    name varchar(30) not null,
-    race varchar(255) not null,
-    sex varchar(10) not null,
-    age_in_month int not null,
-    description varchar(255) not null,
-    has_matched boolean default false,
-    image_urls text[] not null,
-    created_at timestamp default now(),
-    updated_at timestamp default now(),
-    deleted_at timestamp default null,
-    constraint user_id_fk foreign key (user_id) references users(user_id)
+CREATE TABLE cats (
+    id SERIAL PRIMARY KEY,
+    user_id SERIAL NOT NULL,
+    name VARCHAR(30) NOT NULL,
+    race race_enum NOT NULL,
+    sex sex_enum NOT NULL,
+    age_in_month INT NOT NULL,
+    image_urls TEXT[],
+    description VARCHAR(200) NOT NULL,
+    has_matched BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at timestamp DEFAULT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS cat_matches(
-    id uuid default gen_random_uuid() not null constraint cat_matches_id_pk primary key,
-    issuer_user_id uuid not null,
-    issuer_cat_id uuid not null,
-    receiver_user_id uuid not null,
-    receiver_cat_id uuid not null,
-    message varchar(255) not null,
-    is_approved boolean default null,
-    created_at timestamp default now(),
-    updated_at timestamp default now(),
-    deleted_at timestamp default null,
-    constraint cat_matches_issuer_id_fk foreign key (issuer_user_id) references users(user_id),
-    constraint cat_matches_issuer_cat_id_fk foreign key (issuer_cat_id) references cats(cat_id),
-    constraint cat_matches_receiver_id_fk foreign key (receiver_user_id) references users(user_id),
-    constraint cat_matches_receiver_cat_id_fk foreign key (receiver_cat_id) references cats(cat_id)
-)
+CREATE INDEX idx_cats_all_columns ON cats (name);
+
+CREATE TYPE status_match_enum AS ENUM ('pending', 'approved', 'rejected');
+
+CREATE TABLE cat_matches (
+    id SERIAL PRIMARY KEY,
+    issuer_id SERIAL NOT NULL,
+    receiver_id SERIAL NOT NULL,
+    match_cat_id SERIAL NOT NULL,
+    user_cat_id SERIAL NOT NULL,
+    message VARCHAR(120) NOT NULL,
+    status status_match_enum NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at timestamp DEFAULT NULL,
+    FOREIGN KEY (issuer_id) REFERENCES users(id),
+    FOREIGN KEY (receiver_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_cat_matches_all_columns ON cat_matches (user_cat_id, match_cat_id,status);
