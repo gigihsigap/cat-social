@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 
-	"cat-social/auth"
-	"cat-social/repositories"
+	// "cat-social/auth"
+	// "cat-social/repositories"
 
 	_ "github.com/lib/pq"
 )
@@ -23,15 +23,15 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 	// v1 := r.Group("/v1")
 
 	// "v1" group
-	v1 := r.Group("/v1")
+	// v1 := r.Group("/v1")
 
 	// "user" group
-	userRepo := repositories.NewUserRepository(db)
-	authHandler := auth.NewHandler(userRepo)
+	// userRepo := repositories.NewUserRepository(db)
+	// authHandler := auth.NewHandler(userRepo)
 
-	user := v1.Group("/user")
-	user.POST("/register", authHandler.Register)
-	user.POST("/login", authHandler.Login)
+	// user := v1.Group("/user")
+	// user.POST("/register", authHandler.Register)
+	// user.POST("/login", authHandler.Login)
 
 	return r
 }

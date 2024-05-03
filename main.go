@@ -42,7 +42,7 @@ func main() {
 
 	r := routes.SetupRouter(db)
 
-	r.Run(":4000")
+	r.Run(":8080")
 }
 
 func setupDB(connStr string) error {
