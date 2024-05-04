@@ -1,11 +1,12 @@
 package service
 
 import (
-	"cat-social/models"
+	model "cat-social/models"
 	"cat-social/models/dto/request"
 	"cat-social/models/dto/response"
-	"cat-social/repositories"
+	repository "cat-social/repositories"
 	"errors"
+	"fmt"
 )
 
 type CatService interface {
@@ -80,15 +81,18 @@ func (s *catService) FindByIDAndUserID(catID string, userID int) (model.Cat, err
 
 func (s *catService) Create(catRequest request.CatRequest) (response.CreateCatResponse, error) {
 	//save cat
+	fmt.Println("Hello create!")
+
 	cat := model.Cat{
 		Name:        catRequest.Name,
 		Race:        catRequest.Race,
 		Sex:         catRequest.Sex,
-		AgeInMonths: catRequest.AgeInMonths,
+		AgeInMonth:  catRequest.AgeInMonth,
 		Description: catRequest.Description,
 		ImageUrls:   catRequest.ImageUrls,
 		UserID:      catRequest.UserId,
 	}
+	fmt.Println(cat.AgeInMonth)
 	newCat, err := s.repository.Create(cat)
 	return newCat, err
 }
@@ -116,7 +120,7 @@ func (s *catService) Update(catID string, catRequest request.CatRequest) (model.
 	existingCat.Name = catRequest.Name
 	existingCat.Race = catRequest.Race
 	existingCat.Sex = catRequest.Sex
-	existingCat.AgeInMonths = catRequest.AgeInMonths
+	existingCat.AgeInMonth = catRequest.AgeInMonth
 	existingCat.Description = catRequest.Description
 	existingCat.ImageUrls = catRequest.ImageUrls
 

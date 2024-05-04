@@ -9,14 +9,14 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TYPE race_enum AS ENUM ('Persian', 'Maine Coon', 'Siamese', 'Ragdoll', 'Bengal', 'Sphynx', 'British Shorthair', 'Abyssinian', 'Scottish Fold', 'Birman');
-CREATE TYPE sex_enum AS ENUM ('male', 'female');
+CREATE TYPE sex_enum AS ENUM ('Male', 'Female');
 
 CREATE TABLE IF NOT EXISTS cats (
     id SERIAL PRIMARY KEY,
     name VARCHAR(30) NOT NULL,
     race race_enum NOT NULL,
     sex sex_enum NOT NULL,
-    age_in_months INT,
+    age_in_month INT,
     description VARCHAR(200),
     image_urls TEXT[],
     user_id INT NOT NULL,

@@ -150,6 +150,8 @@ func (controller *catController) Create(c *gin.Context) {
 	userID, _ := auth.GetUserIDFromJWTClaims(c)
 	err := c.ShouldBindJSON(&catRequest)
 
+	fmt.Println("Controller create!", catRequest)
+
 	if err != nil {
 		switch err.(type) {
 		case validator.ValidationErrors:

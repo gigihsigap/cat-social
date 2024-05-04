@@ -17,13 +17,19 @@ func main() {
 
 	utils.LoadEnvVariables()
 
-	dbName := os.Getenv("DB_NAME")
-	dbPort := os.Getenv("DB_PORT")
-	dbHost := os.Getenv("DB_HOST")
-	dbUsername := os.Getenv("DB_USERNAME")
-	dbPassword := os.Getenv("DB_PASSWORD")
+	// dbName := os.Getenv("DB_NAME")
+	// dbPort := os.Getenv("DB_PORT")
+	// dbHost := os.Getenv("DB_HOST")
+	// dbUsername := os.Getenv("DB_USERNAME")
+	// dbPassword := os.Getenv("DB_PASSWORD")
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUsername, dbPassword, dbHost, dbPort, dbName)
+	// dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUsername, dbPassword, dbHost, dbPort, dbName)
+
+	username := os.Getenv("DB_USERNAME")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	dbURL := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", username, password, dbname)
 
 	conn, err = db.ConnectToDatabase(dbURL)
 	if err != nil {
