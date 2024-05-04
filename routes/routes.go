@@ -1,37 +1,59 @@
 package routes
 
 import (
-	"database/sql"
 	"github.com/gin-gonic/gin"
-
-	// "cat-social/auth"
-	// "cat-social/repositories"
-
-	_ "github.com/lib/pq"
+	"cat-social/controllers"
+	"cat-social/middlewares/auth"
+	"cat-social/repositories"
+	"cat-social/services"
+	"github.com/jackc/pgx/v5"
 )
 
-func SetupRouter(db *sql.DB) *gin.Engine {
-	r := gin.Default()
+func SetupRouter(conn *pgx.Conn) *gin.Engine {
 
-	r.GET("/hello", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello world!",
-		})
+	// Repository setup
+
+	userRepository := repository.NewUserRepository(conn)
+	catRepository := repository.NewCatRepository(conn)
+	matchRepository := repository.NewMatchRepository(conn)
+
+	// Controller & Service setup
+
+	userService := service.NewUserService(userRepository)
+	userController := controller.NewUserController(userService)
+
+	matchService := service.NewMatchService(matchRepository, catRepository)
+	matchController := controller.NewMatchController(matchService)
+
+	catService := service.NewCatService(catRepository, matchService)
+	catController := controller.NewCatController(catService)
+
+	// Router setup
+
+	router := gin.Default()
+
+	router.GET("/hello", func(c *gin.Context) {
+		c.String(200, "Hello, World!")
 	})
 
-	// Version 1 router group
-	// v1 := r.Group("/v1")
+	routerV1 := router.Group("/v1")
 
-	// "v1" group
-	// v1 := r.Group("/v1")
+	userV1 := routerV1.Group("/user")
+	userV1.POST("/register", userController.SignUp)
+	userV1.POST("/login", userController.SignIn)
 
-	// "user" group
-	// userRepo := repositories.NewUserRepository(db)
-	// authHandler := auth.NewHandler(userRepo)
+	catRouter := routerV1.Group("/cat", auth.RequireAuth)
+	catRouter.GET("/", catController.FindAll)
+	catRouter.POST("/", catController.Create)
+	catRouter.PUT("/:id", catController.Update)
+	catRouter.GET("/:id", catController.FindByID)
+	catRouter.DELETE("/:id", catController.Delete)
 
-	// user := v1.Group("/user")
-	// user.POST("/register", authHandler.Register)
-	// user.POST("/login", authHandler.Login)
+	matchRouter := routerV1.Group("/match", auth.RequireAuth)
+	matchRouter.POST("/", matchController.Create)
+	matchRouter.POST("/approve", matchController.Approve)
+	matchRouter.POST("/reject", matchController.Reject)
 
-	return r
+
+	return router
 }

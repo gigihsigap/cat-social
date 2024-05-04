@@ -1,53 +1,36 @@
+
 package main
 
 import (
-	"database/sql"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"log"
+	"cat-social/db"
+	"cat-social/utils"
 	"cat-social/routes"
+	"fmt"
+	"log"
 	"os"
+	"github.com/jackc/pgx/v5"
 )
 
-var db *sql.DB
-
 func main() {
-	err := godotenv.Load()
+	var err error
+	var conn *pgx.Conn
+
+	utils.LoadEnvVariables()
+
+	dbName := os.Getenv("DB_NAME")
+	dbPort := os.Getenv("DB_PORT")
+	dbHost := os.Getenv("DB_HOST")
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUsername, dbPassword, dbHost, dbPort, dbName)
+
+	conn, err = db.ConnectToDatabase(dbURL)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("DB connection failed!")
 	}
 
-	// Setup DB connection
-	username := os.Getenv("DB_USERNAME")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", username, password, dbname)
-	err = setupDB(connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(db)
-
-	env := os.Getenv("ENC")
-	if env == "production" {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	r := routes.SetupRouter(db)
+	r := routes.SetupRouter(conn)
 
 	r.Run(":8080")
-}
-
-func setupDB(connStr string) error {
-	var err error
-	db, err = sql.Open("postgres", connStr)
-
-	return err
 }

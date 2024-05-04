@@ -5,3 +5,8 @@ type SignupRequest struct {
 	Name     string `json:"name" validate:"required,min=5,max=50"`
 	Password string `json:"password" validate:"required,min=5,max=15"`
 }
+
+type SignInRequest struct {
+	Email    string `binding:"required"`
+	Password string `binding:"required"`
+}
