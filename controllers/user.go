@@ -60,10 +60,6 @@ func (uC *userController) SignUp(c *gin.Context) {
 		return
 	}
 
-	// c.JSON(http.StatusCreated, gin.H{
-	// 	"message": fmt.Sprintf("User %v created succesfully", user.Email),
-	// })
-
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
 		"data":    user,
@@ -95,7 +91,7 @@ func (uC *userController) SignIn(c *gin.Context) {
 		}
 	}
 
-	tokenString, err := uC.userService.Login(loginRequest)
+	user, err := uC.userService.Login(loginRequest)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"errors": err.Error(),
@@ -104,8 +100,7 @@ func (uC *userController) SignIn(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": map[string]string{
-			"token": tokenString,
-		},
+		"message": "User logged successfully",
+		"data":    user,
 	})
 }

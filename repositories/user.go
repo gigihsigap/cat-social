@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"cat-social/models"
+	model "cat-social/models"
 	"context"
 	"fmt"
 
@@ -32,7 +32,7 @@ func (r *userRepository) Create(user model.User) (model.User, error) {
 
 func (r *userRepository) FindByEmail(email string) (model.User, error) {
 	var user model.User
-	err := r.db.QueryRow(context.Background(), "SELECT id, email, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Email, &user.Password)
+	err := r.db.QueryRow(context.Background(), "SELECT id, name, email, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 	if err != nil {
 		return model.User{}, err
 	}

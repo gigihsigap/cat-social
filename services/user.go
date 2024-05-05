@@ -16,7 +16,7 @@ import (
 
 type UserService interface {
 	Create(signUpRequest request.SignupRequest) (response.SignUpResponse, error)
-	Login(loginRequest request.SignInRequest) (string, error)
+	Login(loginRequest request.SignInRequest) (response.SignInResponse, error)
 	GenerateToken(user model.User) (string, error)
 }
 type userService struct {
@@ -70,30 +70,36 @@ func (s *userService) Create(signUpRequest request.SignupRequest) (response.Sign
 	return signUpResponse, nil
 }
 
-func (s *userService) Login(loginRequest request.SignInRequest) (string, error) {
+func (s *userService) Login(loginRequest request.SignInRequest) (response.SignInResponse, error) {
 	//get user
 	user, err := s.repository.FindByEmail(loginRequest.Email)
 
 	if err != nil {
-		return "", err
+		return response.SignInResponse{}, err
 	} else if user.ID == 0 {
-		return "", errors.New("Invalid email or password")
+		return response.SignInResponse{}, errors.New("Invalid email or password")
 	}
 
 	//compare password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
 
 	if err != nil {
-		return "", err
+		return response.SignInResponse{}, err
 	}
 
 	//sign token
 	token, err := s.GenerateToken(user)
 	if err != nil {
-		return "", err
+		return response.SignInResponse{}, err
 	}
 
-	return token, nil
+	signInResponse := response.SignInResponse{
+		Name:        user.Name,
+		Email:       user.Email,
+		AccessToken: token,
+	}
+
+	return signInResponse, nil
 }
 
 func (s *userService) GenerateToken(user model.User) (string, error) {
