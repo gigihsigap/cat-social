@@ -1,13 +1,13 @@
-
 package main
 
 import (
 	"cat-social/db"
-	"cat-social/utils"
 	"cat-social/routes"
+	"cat-social/utils"
 	"fmt"
 	"log"
 	"os"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -16,14 +16,6 @@ func main() {
 	var conn *pgx.Conn
 
 	utils.LoadEnvVariables()
-
-	// dbName := os.Getenv("DB_NAME")
-	// dbPort := os.Getenv("DB_PORT")
-	// dbHost := os.Getenv("DB_HOST")
-	// dbUsername := os.Getenv("DB_USERNAME")
-	// dbPassword := os.Getenv("DB_PASSWORD")
-
-	// dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUsername, dbPassword, dbHost, dbPort, dbName)
 
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
@@ -40,3 +32,11 @@ func main() {
 
 	r.Run(":8080")
 }
+
+// dbName := os.Getenv("DB_NAME")
+// dbPort := os.Getenv("DB_PORT")
+// dbHost := os.Getenv("DB_HOST")
+// dbUsername := os.Getenv("DB_USERNAME")
+// dbPassword := os.Getenv("DB_PASSWORD")
+
+// dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUsername, dbPassword, dbHost, dbPort, dbName)

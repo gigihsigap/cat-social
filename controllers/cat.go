@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"cat-social/models"
+	"cat-social/middlewares/auth"
+	model "cat-social/models"
 	"cat-social/models/dto/request"
 	"cat-social/models/enum"
-	"cat-social/services"
-	"cat-social/middlewares/auth"
+	service "cat-social/services"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -182,11 +182,11 @@ func (controller *catController) Create(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(userID)
 	catRequest.UserId = int(userID)
 	fmt.Println(catRequest)
 	cat, err := controller.catService.Create(catRequest)
 
+	fmt.Println(cat)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"errors": err,

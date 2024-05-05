@@ -2,7 +2,7 @@ package controller
 
 import (
 	"cat-social/models/dto/request"
-	"cat-social/services"
+	service "cat-social/services"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -60,8 +60,13 @@ func (uC *userController) SignUp(c *gin.Context) {
 		return
 	}
 
+	// c.JSON(http.StatusCreated, gin.H{
+	// 	"message": fmt.Sprintf("User %v created succesfully", user.Email),
+	// })
+
 	c.JSON(http.StatusCreated, gin.H{
-		"message": fmt.Sprintf("User %v created succesfully", user.Email),
+		"message": "User registered successfully",
+		"data":    user,
 	})
 }
 

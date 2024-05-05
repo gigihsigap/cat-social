@@ -1,9 +1,10 @@
 package service
 
 import (
-	"cat-social/models"
+	model "cat-social/models"
 	"cat-social/models/dto/request"
-	"cat-social/repositories"
+	"cat-social/models/dto/response"
+	repository "cat-social/repositories"
 	"errors"
 	"fmt"
 	"os"
@@ -14,10 +15,10 @@ import (
 )
 
 type UserService interface {
-	Create(signUpRequest request.SignupRequest) (model.User, error)
+	Create(signUpRequest request.SignupRequest) (response.SignUpResponse, error)
 	Login(loginRequest request.SignInRequest) (string, error)
+	GenerateToken(user model.User) (string, error)
 }
-
 type userService struct {
 	repository repository.UserRepository
 }
@@ -26,19 +27,19 @@ func NewUserService(repository repository.UserRepository) *userService {
 	return &userService{repository}
 }
 
-func (s *userService) Create(signUpRequest request.SignupRequest) (model.User, error) {
+func (s *userService) Create(signUpRequest request.SignupRequest) (response.SignUpResponse, error) {
 	//hash the password
 	hash, err := bcrypt.GenerateFromPassword([]byte(signUpRequest.Password), 10)
 
 	if err != nil {
-		return model.User{}, err
+		return response.SignUpResponse{}, err
 	}
 
 	var isEmailExist bool = s.repository.EmailIsExist(signUpRequest.Email)
 	fmt.Println(isEmailExist)
 	if isEmailExist {
 		fmt.Println("hitted error email redudant")
-		return model.User{}, errors.New("EMAIL ALREADY EXIST")
+		return response.SignUpResponse{}, errors.New("EMAIL ALREADY EXIST")
 	}
 
 	//save user
@@ -49,7 +50,24 @@ func (s *userService) Create(signUpRequest request.SignupRequest) (model.User, e
 	}
 
 	newUser, err := s.repository.Create(user)
-	return newUser, err
+	if err != nil {
+		return response.SignUpResponse{}, err
+	}
+
+	//sign token
+	token, err := s.GenerateToken(newUser)
+	if err != nil {
+		return response.SignUpResponse{}, err
+	}
+
+	// Create and return SignUpResponse
+	signUpResponse := response.SignUpResponse{
+		Name:        newUser.Name,
+		Email:       newUser.Email,
+		AccessToken: token,
+	}
+
+	return signUpResponse, nil
 }
 
 func (s *userService) Login(loginRequest request.SignInRequest) (string, error) {
@@ -69,6 +87,16 @@ func (s *userService) Login(loginRequest request.SignInRequest) (string, error) 
 		return "", err
 	}
 
+	//sign token
+	token, err := s.GenerateToken(user)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (s *userService) GenerateToken(user model.User) (string, error) {
 	//sign token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
