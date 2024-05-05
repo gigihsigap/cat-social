@@ -65,7 +65,7 @@ func (s *matchService) Create(userId int, matchRequest request.MatchRequest) (mo
 		return match, errors.New("THE CATS GENDER ARE SAME")
 	}
 
-	if matchCat.HasMatch || userCat.HasMatch {
+	if matchCat.HasMatched || userCat.HasMatched {
 		return match, errors.New("THE CATS ALREADY MATCHED")
 	}
 

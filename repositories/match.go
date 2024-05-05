@@ -29,7 +29,7 @@ func NewMatchRepository(db *pgx.Conn) *matchRepository {
 
 func (r *matchRepository) Create(match model.Match) (model.Match, error) {
 	fmt.Println(match)
-	_, err := r.db.Exec(context.Background(), "INSERT INTO matchs (match_cat_id, user_cat_id, message, is_approved, issued_by, accepted_by) VALUES ($1,$2,$3,$4,$5,$6)", match.MatchCatID, match.UserCatID, match.Message, nil, match.IssuedBy, match.AcceptedBy)
+	_, err := r.db.Exec(context.Background(), "INSERT INTO matches (match_cat_id, user_cat_id, message, is_approved, issued_by, accepted_by) VALUES ($1,$2,$3,$4,$5,$6)", match.MatchCatID, match.UserCatID, match.Message, nil, match.IssuedBy, match.AcceptedBy)
 	if err != nil {
 		return model.Match{}, err
 	}
@@ -48,7 +48,7 @@ func (r *matchRepository) GetMatches(userId int) ([]response.MatchResponse, erro
 				c_match.age_in_month AS match_cat_age_in_month,
 				c_match.description AS match_cat_description,
 				c_match.image_urls AS match_cat_image_urls,
-				c_match.has_match AS match_cat_has_match,
+				c_match.has_matched AS match_cat_has_match,
 				c_match.created_at AS match_cat_created_at,
 				c_user.id AS user_cat_id,
 				c_user.name AS user_cat_name,
@@ -57,11 +57,11 @@ func (r *matchRepository) GetMatches(userId int) ([]response.MatchResponse, erro
 				c_user.age_in_month AS user_cat_age_in_month,
 				c_user.description AS user_cat_description,
 				c_user.image_urls AS user_cat_image_urls,
-				c_user.has_match AS user_cat_has_match,
+				c_user.has_matched AS user_cat_has_match,
 				c_user.created_at AS user_cat_created_at,
 				m.message AS match_message,
 				m.created_at AS match_created_at
-			FROM matchs AS m
+			FROM matches AS m
 			JOIN users AS u_issuer ON m.issued_by = u_issuer.id
 			JOIN cats AS c_user ON m.user_cat_id = c_user.id
 			JOIN cats AS c_match ON m.match_cat_id = c_match.id
@@ -126,7 +126,7 @@ func (r *matchRepository) GetMatches(userId int) ([]response.MatchResponse, erro
 
 func (r *matchRepository) MatchIsExist(matchId int) (model.Match, error) {
 	var match model.Match
-	err := r.db.QueryRow(context.Background(), "SELECT id, match_cat_id, user_cat_id, message, issued_by, is_matched, created_at, updated_at, is_approved FROM matchs WHERE id = $1 LIMIT 1", matchId).Scan(&match.ID, &match.MatchCatID, &match.UserCatID, &match.Message, &match.IssuedBy, &match.IsMatched, &match.CreatedAt, &match.UpdatedAt, &match.IsAproved)
+	err := r.db.QueryRow(context.Background(), "SELECT id, match_cat_id, user_cat_id, message, issued_by, is_matched, created_at, updated_at, is_approved FROM matches WHERE id = $1 LIMIT 1", matchId).Scan(&match.ID, &match.MatchCatID, &match.UserCatID, &match.Message, &match.IssuedBy, &match.IsMatched, &match.CreatedAt, &match.UpdatedAt, &match.IsAproved)
 
 	fmt.Println(match)
 	if err != nil {
@@ -138,7 +138,7 @@ func (r *matchRepository) MatchIsExist(matchId int) (model.Match, error) {
 }
 
 func (r *matchRepository) MatchApproval(matchId int, isApprove bool) (int, error) {
-	_, err := r.db.Exec(context.Background(), "UPDATE matchs SET is_approved = $1, is_matched = TRUE WHERE id = $2", isApprove, matchId)
+	_, err := r.db.Exec(context.Background(), "UPDATE matches SET is_approved = $1, is_matched = TRUE WHERE id = $2", isApprove, matchId)
 
 	if err != nil {
 		return matchId, err
@@ -147,7 +147,7 @@ func (r *matchRepository) MatchApproval(matchId int, isApprove bool) (int, error
 }
 
 func (r *matchRepository) Delete(matchId int) error {
-	_, err := r.db.Exec(context.Background(), "DELETE FROM matchs WHERE id = $1", matchId)
+	_, err := r.db.Exec(context.Background(), "DELETE FROM matches WHERE id = $1", matchId)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (r *matchRepository) Delete(matchId int) error {
 
 func (r *matchRepository) LatestMatch(catID string) (model.Match, error) {
 	var match model.Match
-	err := r.db.QueryRow(context.Background(), "SELECT id, match_cat_id, user_cat_id, is_approved, message, issued_by, created_at, updated_at FROM matchs WHERE match_cat_id = $1 OR user_cat_id = $1 ORDER BY id DESC LIMIT 1", catID).Scan(&match.ID, &match.MatchCatID, &match.UserCatID, &match.IsAproved, &match.Message, &match.IssuedBy, &match.CreatedAt, &match.UpdatedAt)
+	err := r.db.QueryRow(context.Background(), "SELECT id, match_cat_id, user_cat_id, is_approved, message, issued_by, created_at, updated_at FROM matches WHERE match_cat_id = $1 OR user_cat_id = $1 ORDER BY id DESC LIMIT 1", catID).Scan(&match.ID, &match.MatchCatID, &match.UserCatID, &match.IsAproved, &match.Message, &match.IssuedBy, &match.CreatedAt, &match.UpdatedAt)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {

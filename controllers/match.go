@@ -18,7 +18,7 @@ type matchController struct {
 }
 
 func NewMatchController(service service.MatchService) *matchController {
-	return &matchController{service}
+	return &matchController{matchService: service}
 }
 
 func (controller *matchController) GetMatches(c *gin.Context) {

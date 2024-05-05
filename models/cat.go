@@ -11,6 +11,6 @@ type Cat struct {
 	Description string    `json:"description"`
 	ImageUrls   []string  `json:"image_urls"`
 	UserID      int       `json:"user_id"` // Foreign key referencing User
-	HasMatch    bool      `json:"hasMatch"`
+	HasMatched  bool      `json:"HasMatched"`
 	Common
 }

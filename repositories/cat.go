@@ -35,10 +35,12 @@ func NewCatRepository(db *pgx.Conn) *catRepository {
 func (r *catRepository) FindAll(filterParams map[string]interface{}) ([]response.CatResponse, error) {
 	query := "SELECT id, name, race, sex, age_in_month, description, image_urls FROM cats WHERE 1=1"
 	var args []interface{}
+	argIndex := 1
 
 	if catID, ok := filterParams["id"].(string); ok && catID != "" {
-		query += " AND id = $1"
+		query += fmt.Sprintf(" AND id = $%d", argIndex)
 		args = append(args, catID)
+		argIndex++
 	}
 
 	if race, ok := filterParams["race"].(enum.Race); ok && race != "" {
@@ -73,7 +75,6 @@ func (r *catRepository) FindAll(filterParams map[string]interface{}) ([]response
 	}
 
 	if owned, ok := filterParams["owned"].(bool); ok {
-		// userId := 0
 		userId := filterParams["userID"]
 		if owned {
 			query += fmt.Sprintf(" AND user_id = %d", userId)
@@ -87,13 +88,15 @@ func (r *catRepository) FindAll(filterParams map[string]interface{}) ([]response
 	}
 
 	if limit, ok := filterParams["limit"].(int); ok && limit > 0 {
-		query += " LIMIT $2"
+		query += fmt.Sprintf(" LIMIT $%d", argIndex)
 		args = append(args, limit)
+		argIndex++
 	}
 
 	if offset, ok := filterParams["offset"].(int); ok && offset >= 0 {
-		query += " OFFSET $3"
+		query += fmt.Sprintf(" OFFSET $%d", argIndex)
 		args = append(args, offset)
+		argIndex++
 	}
 	fmt.Println(query)
 	rows, err := r.db.Query(context.Background(), query, args...)
@@ -117,7 +120,7 @@ func (r *catRepository) FindAll(filterParams map[string]interface{}) ([]response
 			AgeInMonth:  cat.AgeInMonth,
 			ImageURLs:   cat.ImageUrls,
 			Description: cat.Description,
-			HasMatched:  cat.HasMatch,
+			HasMatched:  cat.HasMatched,
 		}
 		cats = append(cats, catResponse)
 	}
@@ -126,7 +129,7 @@ func (r *catRepository) FindAll(filterParams map[string]interface{}) ([]response
 
 func (r *catRepository) FindByID(catID string) (model.Cat, error) {
 	var cat model.Cat
-	err := r.db.QueryRow(context.Background(), "SELECT id, name, race, sex, age_in_month, has_matched, description, image_urls FROM cats WHERE id = $1", catID).Scan(&cat.ID, &cat.Name, &cat.Race, &cat.Sex, &cat.AgeInMonth, &cat.HasMatch, &cat.Description, &cat.ImageUrls)
+	err := r.db.QueryRow(context.Background(), "SELECT id, name, race, sex, age_in_month, has_matched, description, image_urls FROM cats WHERE id = $1", catID).Scan(&cat.ID, &cat.Name, &cat.Race, &cat.Sex, &cat.AgeInMonth, &cat.HasMatched, &cat.Description, &cat.ImageUrls)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Cat{}, nil // Kucing tidak ditemukan, tidak ada error

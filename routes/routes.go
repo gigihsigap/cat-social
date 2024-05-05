@@ -50,7 +50,8 @@ func SetupRouter(conn *pgx.Conn) *gin.Engine {
 	catRouter.GET("/:id", catController.FindByID)
 	catRouter.DELETE("/:id", catController.Delete)
 
-	matchRouter := routerV1.Group("/match", auth.RequireAuth)
+	matchRouter := routerV1.Group("/cat/match")
+
 	matchRouter.GET("/", matchController.GetMatches)
 	matchRouter.POST("/", matchController.Create)
 	matchRouter.POST("/approve", matchController.Approve)
