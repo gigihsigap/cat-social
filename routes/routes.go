@@ -1,11 +1,12 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-	"cat-social/controllers"
+	controller "cat-social/controllers"
 	"cat-social/middlewares/auth"
-	"cat-social/repositories"
-	"cat-social/services"
+	repository "cat-social/repositories"
+	service "cat-social/services"
+
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -50,10 +51,10 @@ func SetupRouter(conn *pgx.Conn) *gin.Engine {
 	catRouter.DELETE("/:id", catController.Delete)
 
 	matchRouter := routerV1.Group("/match", auth.RequireAuth)
+	matchRouter.GET("/", matchController.GetMatches)
 	matchRouter.POST("/", matchController.Create)
 	matchRouter.POST("/approve", matchController.Approve)
 	matchRouter.POST("/reject", matchController.Reject)
-
 
 	return router
 }

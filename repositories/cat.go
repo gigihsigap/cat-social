@@ -63,9 +63,11 @@ func (r *catRepository) FindAll(filterParams map[string]interface{}) ([]response
 		} else if strings.HasPrefix(ageInMonth, "<") {
 			comparison = "<"
 			age, _ = strconv.Atoi(strings.TrimPrefix(ageInMonth, "<"))
-		} else {
+		} else if strings.HasPrefix(ageInMonth, "=") {
 			comparison = "="
-			age, _ = strconv.Atoi(ageInMonth)
+			age, _ = strconv.Atoi(strings.TrimPrefix(ageInMonth, "="))
+		} else {
+			return nil, errors.New("Invalid comparison operator")
 		}
 		query += fmt.Sprintf(" AND age_in_month %s %d", comparison, age)
 	}

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TYPE race_enum AS ENUM ('Persian', 'Maine Coon', 'Siamese', 'Ragdoll', 'Bengal', 'Sphynx', 'British Shorthair', 'Abyssinian', 'Scottish Fold', 'Birman');
-CREATE TYPE sex_enum AS ENUM ('Male', 'Female');
+CREATE TYPE sex_enum AS ENUM ('male', 'female');
 
 CREATE TABLE IF NOT EXISTS cats (
     id SERIAL PRIMARY KEY,
@@ -32,9 +32,10 @@ CREATE TABLE IF NOT EXISTS matches (
     id SERIAL PRIMARY KEY,
     match_cat_id INT NOT NULL,
     user_cat_id INT NOT NULL,
-    is_approved BOOLEAN DEFAULT NULL,
-    message TEXT NOT NULL,
     issued_by INT NOT NULL,
+    message TEXT NOT NULL,
+    is_approved BOOLEAN DEFAULT NULL,
+    is_matched BOOLEAN DEFAULT FALSE,    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at timestamp DEFAULT NULL,
